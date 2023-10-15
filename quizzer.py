@@ -1,6 +1,14 @@
 from bs4 import BeautifulSoup
 import requests, random, string, datetime
 
+ascii_art_welcome = '''                                 _ _____  __   _ 
+  __ _  ___ ___     ___ ___  ___(_)___ / / /_ / |
+ / _` |/ __/ _ \\   / __/ __|/ __| | |_ \\| '_ \\| |
+| (_| | (_|  __/  | (__\\__ \\ (__| |___) | (_) | |
+ \\__,_|\\___\\___|___\\___|___/\\___|_|____/ \\___/|_|\n'''
+
+print(ascii_art_welcome)
+
 # Constants
 NOTE_URLS = [
     'https://cs.ccsu.edu/~stan/classes/CS410/Notes16/01-WhatIsSE.html',
