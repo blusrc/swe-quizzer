@@ -136,6 +136,7 @@ def question_wizard(quiz_questions, score, user_answers):
             if user_answer.lower() == q["answer"].lower():
                 score += 1
             print("\n")
+    return score
 
 def administer_quiz(quiz_questions, chapter_number, soup):
     title = soup.find('div', class_='SimpleTitle').find_all('p')[1].text
@@ -152,7 +153,7 @@ def administer_quiz(quiz_questions, chapter_number, soup):
     user_answers = []
     score = 0
 
-    question_wizard(quiz_questions, score, user_answers)
+    score = question_wizard(quiz_questions, score, user_answers)
 
     percentage = (score / len(quiz_questions)) * 100
     print(f"Your Score: {score}/{len(quiz_questions)}")
