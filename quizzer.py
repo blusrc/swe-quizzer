@@ -1,5 +1,5 @@
 from bs4 import BeautifulSoup
-import requests, random, string, datetime
+import requests, random, string, datetime, re
 
 ascii_art_welcome = '''                                 _ _____  __   _ 
   __ _  ___ ___     ___ ___  ___(_)___ / / /_ / |
@@ -52,7 +52,71 @@ def strip_choice_custom(choice):
         if choice.startswith(prefix):
             choice = choice.replace(prefix, "").rstrip("?")
             break
+    choice = re.sub(r'\(.*?\)', '', choice)  # Remove anything inside parentheses
     return choice.strip()
+
+
+def extract_ul_questions(chunk, next_chunk):
+    ul_questions = []
+    ul_element = chunk.find_next('ul')
+    
+    if not ul_element or (next_chunk and next_chunk.find_previous('ul') == ul_element):
+        return []
+
+    # Extract the header from the preceding <p> element
+    header = ul_element.find_previous('p').text.strip()
+    
+    for li in ul_element.find_all("li"):
+        b_element = li.find("b")
+        if b_element:
+            surrounding_text = li.text.strip()
+            answer = b_element.text.strip()
+            question = surrounding_text.replace(answer, "___")
+            
+            # Combine the header with the question
+            combined_question = f"{header} {question}"
+            
+            ul_questions.append({
+                "type": "fill",
+                "question": combined_question,
+                "answer": answer
+            })
+
+    return ul_questions
+
+
+def extract_fill_questions(chunk, next_chunk):
+    fill_questions = []
+    bold_elements = []
+
+    for tag in chunk.find_all_next():
+        # If we hit the next underhead, stop looking for bold tags
+        if tag == next_chunk:
+            break
+        bold_elements.extend(tag.find_all("b"))
+    for b_element in bold_elements:
+        # Get the entire text surrounding the bold text
+        surrounding_text = b_element.parent.text.strip()
+
+        # Split the surrounding text into sentences
+        sentences = re.split(r'(?<!\w\.\w.)(?<![A-Z][a-z]\.)(?<=\.|\?)\s', surrounding_text)
+
+        # Find the specific sentence that contains the bold text (answer)
+        for sentence in sentences:
+            if b_element.text.strip() in sentence:
+                sentence = re.sub(r'\(.*?\)', '', sentence)
+                answer = b_element.text.strip()
+                answer = re.sub(r'\(.*?\)', '', answer).strip()
+                question = sentence.replace(answer, "___")
+                # Check if fill in the gap question ends with ":"
+                if not question.endswith(":"):
+                    fill_questions.append({
+                        "type": "fill",
+                        "question": question,
+                        "answer": answer
+                    })
+    
+    return fill_questions
 
 
 def extract_quiz_questions(soup):
@@ -61,11 +125,11 @@ def extract_quiz_questions(soup):
 
     for idx, chunk in enumerate(underheads):
         next_chunk = underheads[idx + 1] if idx + 1 < len(underheads) else None
-        next_underhead = chunk.find_next(class_='Underhead')
+        # next_underhead = chunk.find_next(class_='Underhead')
         dl_elements = chunk.find_next('dl')
 
-        if next_underhead and (not dl_elements or next_underhead.find_previous('dl') != dl_elements):
-            dl_elements = None
+        # if next_underhead and (not dl_elements or next_underhead.find_previous('dl') != dl_elements):
+        #     dl_elements = None
 
         if dl_elements:
             for dd in dl_elements.find_all("dd"):
@@ -88,32 +152,20 @@ def extract_quiz_questions(soup):
                     "choices": choices,
                     "correct_answer": correct_answer
                 })
-
-        else:
-            bold_elements = []
-            for tag in chunk.find_all_next():
-                # If we hit the next underhead, stop looking for bold tags
-                if tag == next_chunk:
-                    break
-                bold_elements.extend(tag.find_all("b"))
-            for b_element in bold_elements:
-                parent = b_element.parent
-                if parent:
-                    sentence = parent.text.strip()
-                    answer = b_element.text.strip()
-                    question = sentence.replace(answer, "___")
-                    quiz_questions.append({
-                        "type": "fill",
-                        "question": question,
-                        "answer": answer
-                    })
+        else: 
+            # TODO: Fix bullet point questions
+            # ul_questions = extract_ul_questions(chunk, next_chunk)
+            # quiz_questions.extend(ul_questions)
+            fill_questions = extract_fill_questions(chunk, next_chunk)
+            quiz_questions.extend(fill_questions)
 
     return quiz_questions
+
 
 def question_wizard(quiz_questions, score, user_answers):
     for idx, q in enumerate(quiz_questions, 1):
         if q["type"] == "mcq":
-            print(f"{idx}. Choose the most suitable answer for this definition:\n\n{q['question']}\n")
+            print(f"{idx}. Choose the most suitable/close term for this definition:\n\n{q['question']}\n")
             current_choices = CHOICE_LABELS[:len(q['choices'])]
             for choice_idx, choice in enumerate(q['choices']):
                 print(f"   {current_choices[choice_idx]}. {choice}")
@@ -137,6 +189,7 @@ def question_wizard(quiz_questions, score, user_answers):
                 score += 1
             print("\n")
     return score
+
 
 def administer_quiz(quiz_questions, chapter_number, soup):
     title = soup.find('div', class_='SimpleTitle').find_all('p')[1].text
@@ -181,7 +234,7 @@ def main():
     html_content = fetch_html_content(NOTE_URLS[chapter_number - 1])
     soup = BeautifulSoup(html_content, 'html.parser')
     quiz_questions = extract_quiz_questions(soup)
-    random.shuffle(quiz_questions)
+    # random.shuffle(quiz_questions)
     administer_quiz(quiz_questions, chapter_number, soup)
 
 

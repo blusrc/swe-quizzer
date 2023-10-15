@@ -22,6 +22,7 @@ When you finish the quiz it will be saved in a separate .txt file so you can tra
 - Multi choice questions (MCQ)
 - Fill in the gaps
 - Randomized choices (to avoid one-letter spamming to complete)
+- Saving submissions
 
 ## Credits
 
@@ -30,3 +31,7 @@ When you finish the quiz it will be saved in a separate .txt file so you can tra
 ## Contribution
 
 Open for any suggestions
+
+## TODO
+
+- Fix bullet point question extraction
