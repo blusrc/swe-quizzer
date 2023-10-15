@@ -23,63 +23,81 @@ def extract_title(soup):
     title = title_div.find_all('p')[1].text
     return title
 
-from bs4 import BeautifulSoup
-import requests
-
-# Fetching the HTML content
-url = 'https://cs.ccsu.edu/~stan/classes/CS410/Notes16/01-WhatIsSE.html'
-response = requests.get(url)
-html_content = response.text if response.status_code == 200 else ""
-
-# Parsing the HTML using BeautifulSoup
-soup = BeautifulSoup(html_content, 'html.parser')
-
-def extract_title(soup):
-    title_div = soup.find('div', class_='SimpleTitle')
-    title = title_div.find_all('p')[1].text
+def extract_ref(soup):
+    ref_div = soup.find("div", class_="Content")
+    title = ref_div.find_next('p').text
     return title
 
-def extract_questions(soup):
-    """Extract MCQs and fill in the gaps questions from the soup object."""
-    mcqs = []
-    fill_in_the_gaps = []
-    underheads = soup.find_all('div', class_='Underhead')
+underheads = soup.select(".Underhead")
+
+quiz_questions = []
+
+def strip_choice_custom(choice):
+    if choice.startswith("What is the"):
+        choice = choice.replace("What is the", "").rstrip("?")
+    elif choice.startswith("What are the"):
+        choice = choice.replace("What are the", "").rstrip("?")
+    elif choice.startswith("What is"):
+        choice = choice.replace("What is", "").rstrip("?")
+    elif choice.startswith("What"):
+        choice = choice.replace("What", "").rstrip("?")
     
-    for i, underhead in enumerate(underheads):
-        context = underhead.find('p').text
-        dl = underhead.find_next('dl')
-        
-        if dl:  # If MCQs are present
-            options = [dt.text for dt in dl.find_all('dt')]
-            for dd in dl.find_all('dd'):
-                question = f"{context}: {dd.text}"
-                mcqs.append((question, options))
-        else:  # If fill in the gaps questions are present
-            # Find all subsequent siblings until the next Underhead or end of document
-            for sibling in underhead.find_next_siblings():
-                if sibling.name and "Underhead" in sibling.get('class', []):  # Stop if next Underhead is found
-                    break
-                terms = [term.text for term in sibling.find_all(['b', 'u'])]
-                if terms:
-                    for term in terms:
-                        question = sibling.text.replace(term, "___")
-                        fill_in_the_gaps.append((question, term))
-    
-    return {"mcq": mcqs, "fing": fill_in_the_gaps}
+    return choice.strip()
 
-# Extract questions using updated logic
-questions = extract_questions(soup)
+for idx, chunk in enumerate(underheads):
+    next_chunk = underheads[idx + 1] if idx + 1 < len(underheads) else None
 
-print(questions["fing"] ) # Displaying the fill in the gaps questions for demonstration
+    dl_elements = chunk.find_next("dl")
+    if dl_elements:
+        print("found mcq")
+        choices = [strip_choice_custom(dt.text.strip()) for dt in dl_elements.find_all("dt")]
+        for dd in dl_elements.find_all("dd"):
+            question = dd.text.strip()
 
+            correct_answer = dd.find_previous_sibling("dt").text.strip()
+            correct_answer = strip_choice_custom(correct_answer)
 
-quiz_title = extract_title(soup)
+            quiz_questions.append({
+                "type": "mcq",
+                "question": question,
+                "choices": choices,
+                "correct_answer": correct_answer
+            })
+    else:
+        print("found fill")
+        # Fill-in-the-gaps extraction
+        paragraphs = chunk.find_all_next("p", limit=5)  # Let's limit to 5 for safety, adjust if necessary
+        for para in paragraphs:
+            if not para.find("dl"):  # We don't want to process DL elements within these paragraphs
+                b_elements = para.find_all("b")
+                for b_element in b_elements:
+                    sentence = b_element.find_parent().text.strip()
+                    answer = b_element.text.strip()
+                    question = sentence.replace(answer, "___")
+                    quiz_questions.append({
+                        "type": "fill-in-the-gap",
+                        "question": question,
+                        "answer": answer
+                    })
 
-print(f"\"{quiz_title}\" Chapter Quiz\n")
+def pretty_print_quiz(quiz_questions):
+    title = extract_title(soup)
+    ref = extract_ref(soup)
 
-questions = extract_questions(soup)
+    print(f"\"{title}\" Chapter Quiz")
+    print(ref)
+    print()
+    for idx, q in enumerate(quiz_questions, 1):
+        # if q["type"] == "mcq":
+        #     print(f"{idx}. {q['question']}")
+        #     for choice_idx, choice in enumerate(q['choices'], 1):
+        #         prefix = '*' if choice == q['correct_answer'] else ''
+        #         print(f"   {choice_idx}. {prefix}{choice}")
+        #     print("\n")
 
-for question in questions["mcq"]:
-    print(question[0])
-    for index, choice in enumerate(question [1]):
-        print(f"\t {index} {choice}")
+        if q["type"] == "fill":
+            print(f'{idx} {q["question"]}')
+            print(f'Answer: {q["answer"]}')
+            print('-' * 50)
+
+pretty_print_quiz(quiz_questions)
