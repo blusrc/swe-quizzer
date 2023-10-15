@@ -15,6 +15,18 @@ python quizzer.py
 
 The rest will be instructed by the app itself
 
+When you finish the quiz it will be saved in a separate .txt file so you can track your progress.
+
+## Features
+
+- Multi choice questions (MCQ)
+- Fill in the gaps
+- Randomized choices (to avoid one-letter spamming to complete)
+
 ## Credits
 
 - CCSU CS 410/510 notes
+
+## Contribution
+
+Open for any suggestions
