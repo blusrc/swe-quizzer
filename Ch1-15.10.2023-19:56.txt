@@ -1,0 +1,143 @@
+Your Score: 10/35
+Percentage: 28.57%
+
+1. As new software engineering techniques help us to build larger, more complex systems, the demands change. Systems have to be built and delivered more quickly; larger, even more complex systems are required; systems have to have new capabilities that were previously thought to be impossible.
+Your Answer: a
+Correct Answer: a
+
+2. It is relatively easy to write computer programs without using software engineering methods and techniques. Computer programming is NOT software engineering.
+Your Answer: b
+Correct Answer: b
+
+3. Computer programs and associated documentation. Software products may be developed for a particular customer or may be developed for a general market.
+Your Answer: a
+Correct Answer: c
+
+4. Good software should deliver the required functionality and performance to the user and should be maintainable, dependable, and usable.
+Your Answer: a
+Correct Answer: c
+
+5. Software engineering is an engineering discipline that is concerned with all aspects of software production.
+Your Answer: d
+Correct Answer: b
+
+6. Software specification, software development, software validation and software evolution.
+Your Answer: b
+Correct Answer: b
+
+7. Computer science focuses on theory and fundamentals; software engineering is concerned with the practicalities of developing and delivering useful software.
+Your Answer: c
+Correct Answer: a
+
+8. System engineering is concerned with all aspects of computer-based systems development including hardware, software and process engineering. Software engineering is part of this more general process.
+Your Answer: b
+Correct Answer: d
+
+9. Coping with increasing diversity, demands for reduced delivery times and developing trustworthy software.
+Your Answer: a
+Correct Answer: c
+
+10. Roughly 60% of software costs are development costs, 40% are testing costs. For custom software, evolution costs often exceed development costs.
+Your Answer: a
+Correct Answer: c
+
+11. While all software projects have to be professionally managed and developed, different techniques are appropriate for different types of system. For example, games should always be developed using a series of prototypes whereas safety critical control systems require a complete and analyzable specification to be developed. You can't, therefore, say that one method is better than another.
+Your Answer: c
+Correct Answer: a
+
+12. The web has led to the availability of software services and the possibility of developing highly distributed service-based systems. Web-based systems development has led to important advances in programming languages and software reuse.
+Your Answer: b
+Correct Answer: d
+
+13. Software should be written in such a way so that it can evolve to meet the changing needs of customers. This is a critical attribute because software change is an inevitable requirement of a changing business environment.
+Your Answer: a
+Correct Answer: a
+
+14. Software dependability includes a range of characteristics including reliability, security and safety. Dependable software should not cause physical or economic damage in the event of system failure. Malicious users should not be able to access or damage the system.
+Your Answer: b
+Correct Answer: b
+
+15. Software should not make wasteful use of system resources such as memory and processor cycles. Efficiency therefore includes responsiveness, processing time, memory utilisation, etc.
+Your Answer: d
+Correct Answer: c
+
+16. Software must be acceptable to the type of users for which it is designed. This means that it must be understandable, usable and compatible with other systems that they use.
+Your Answer: c
+Correct Answer: d
+
+17. Software ___, where customers and engineers define the software that is to be produced and the constraints on its operation.
+Your Answer: specification
+Correct Answer: specification
+
+18. Software ___, where the software is designed and programmed.
+Your Answer: environment
+Correct Answer: development
+
+19. Software ___, where the software is checked to ensure that it is what the customer requires.
+Your Answer: hello
+Correct Answer: validation
+
+20. Software ___, where the software is modified to reflect changing customer and market requirements.
+Your Answer: oasneuh
+Correct Answer: evolution
+
+21. Software ___, where customers and engineers define the software that is to be produced and the constraints on its operation.
+Your Answer: saotn
+Correct Answer: specification
+
+22. Software ___, where the software is designed and programmed.
+Your Answer: asoeth
+Correct Answer: development
+
+23. Software ___, where the software is checked to ensure that it is what the customer requires.
+Your Answer: aosetuh
+Correct Answer: validation
+
+24. Software ___, where the software is modified to reflect changing customer and market requirements.
+Your Answer: aoseu
+Correct Answer: evolution
+
+25. Increasingly, systems are required to operate as distributed systems across networks that include different types of computer and mobile devices.
+Your Answer: a
+Correct Answer: a
+
+26. Business and society are changing incredibly quickly as emerging economies develop and new technologies become available. They need to be able to change their existing software and to rapidly develop new software.
+Your Answer: b
+Correct Answer: b
+
+27. As software is intertwined with all aspects of our lives, it is essential that we can trust that software.
+Your Answer: c
+Correct Answer: c
+
+28. Systems should be developed using a managed and understood development process. The organization developing the software should plan the development process and have clear ideas of what will be produced and when it will be completed. Of course, different processes are used for different types of software.
+Your Answer: d
+Correct Answer: a
+
+29. Dependability and performance are important for all types of systems. Software should behave as expected, without failures and should be available for use when it is required. It should be safe in its operation and, as far as possible, should be secure against external attack. The system should perform efficiently and should not waste resources.
+Your Answer: c
+Correct Answer: b
+
+30. Understanding and managing the software specification and requirements (what the software should do) are important. You have to know what different customers and users of the system expect from it and you have to manage their expectations so that a useful system can be delivered within budget and to schedule.
+Your Answer: d
+Correct Answer: c
+
+31. You should make as effective use as possible of existing resources. This means that, where appropriate, you should reuse software that has already been developed rather than write new software.
+Your Answer: b
+Correct Answer: d
+
+32. You should normally respect the confidentiality of your employers or clients irrespective of whether or not a formal confidentiality agreement has been signed.
+Your Answer: a
+Correct Answer: a
+
+33. You should not misrepresent your level of competence. You should not knowingly accept work that is outside your competence.
+Your Answer: c
+Correct Answer: b
+
+34. You should be aware of local laws governing the use of intellectual property such as patents and copyright. You should be careful to ensure that the intellectual property of employers and clients is protected.
+Your Answer: b
+Correct Answer: c
+
+35. You should not use your technical skills to misuse other people's computers. Computer misuse ranges from relatively trivial (game playing on an employer's machine, say) to extremely serious (dissemination of viruses or other malware).
+Your Answer: a
+Correct Answer: d
+
