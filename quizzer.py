@@ -22,13 +22,13 @@ CHOICE_LABELS = string.ascii_lowercase  # 'abcdefghijklmnopqrstuvwxyz'
 def get_user_input():
     while True:
         try:
-            chapter_number = int(input("What chapter you want to be quizzed on? (1-12): "))
-            if 1 <= chapter_number <= 12:
+            chapter_number = int(input(f"What chapter you want to be quizzed on? (1-{len(NOTE_URLS)}): "))
+            if 1 <= chapter_number <= len(NOTE_URLS):
                 return chapter_number
             else:
-                print("Number is out of range. Please enter a number between 1 and 12.")
+                print(f"Number is out of range. Please enter a number between 1 and {len(NOTE_URLS)}.")
         except ValueError:
-            print("Invalid input. Please enter a number between 1 and 12.")
+            print(f"Invalid input. Please enter a number between 1 and {len(NOTE_URLS)}.")
 
 
 def fetch_html_content(url):
@@ -70,8 +70,9 @@ def extract_quiz_questions(soup):
                     del choices[correct_choice_index]
                     random_choices = random.sample(choices, 3)
                     random_choices.append(correct_answer)
-                    random.shuffle(random_choices)
                     choices = random_choices
+
+                random.shuffle(choices)
 
                 quiz_questions.append({
                     "type": "mcq",
@@ -81,7 +82,12 @@ def extract_quiz_questions(soup):
                 })
 
         else:
-            bold_elements = [tag.find_all("b") for tag in chunk.find_all_next() if tag == next_chunk]
+            bold_elements = []
+            for tag in chunk.find_all_next():
+                # If we hit the next underhead, stop looking for bold tags
+                if tag == next_chunk:
+                    break
+                bold_elements.extend(tag.find_all("b"))
             for b_element in bold_elements:
                 parent = b_element.parent
                 if parent:
@@ -96,24 +102,10 @@ def extract_quiz_questions(soup):
 
     return quiz_questions
 
-
-def administer_quiz(quiz_questions, chapter_number, soup):
-    title = soup.find('div', class_='SimpleTitle').find_all('p')[1].text
-    ref = soup.find("div", class_="Content").find_next('p').text
-    url = NOTE_URLS[chapter_number - 1]
-
-    print(f"\"{title}\" Chapter Quiz")
-    print(ref)
-    print(f"# of questions: {len(quiz_questions)}")
-    print(f"Study here: {url}")
-    print()
-
-    user_answers = []
-    score = 0
-
+def question_wizard(quiz_questions, score, user_answers):
     for idx, q in enumerate(quiz_questions, 1):
         if q["type"] == "mcq":
-            print(f"{idx}. Choose the most suitable answer for this definition:\n{q['question']}")
+            print(f"{idx}. Choose the most suitable answer for this definition:\n\n{q['question']}\n")
             current_choices = CHOICE_LABELS[:len(q['choices'])]
             for choice_idx, choice in enumerate(q['choices']):
                 print(f"   {current_choices[choice_idx]}. {choice}")
@@ -130,12 +122,29 @@ def administer_quiz(quiz_questions, chapter_number, soup):
             print("\n")
 
         if q["type"] == "fill":
-            print(f'{idx}. Fill in the gap:\n{q["question"]}')
+            print(f'{idx}. Fill in the gap:\n\n{q["question"]}\n')
             user_answer = input("Your answer: ").strip()
             user_answers.append(user_answer)
             if user_answer.lower() == q["answer"].lower():
                 score += 1
             print("\n")
+
+def administer_quiz(quiz_questions, chapter_number, soup):
+    title = soup.find('div', class_='SimpleTitle').find_all('p')[1].text
+    ref = soup.find("div", class_="Content").find_next('p').text
+    url = NOTE_URLS[chapter_number - 1]
+
+    print()
+    print(f"\"{title}\" Chapter Quiz")
+    print(ref)
+    print(f"# of questions: {len(quiz_questions)}")
+    print(f"Study here: {url}")
+    print()
+
+    user_answers = []
+    score = 0
+
+    question_wizard(quiz_questions, score, user_answers)
 
     percentage = (score / len(quiz_questions)) * 100
     print(f"Your Score: {score}/{len(quiz_questions)}")
@@ -163,6 +172,7 @@ def main():
     html_content = fetch_html_content(NOTE_URLS[chapter_number - 1])
     soup = BeautifulSoup(html_content, 'html.parser')
     quiz_questions = extract_quiz_questions(soup)
+    random.shuffle(quiz_questions)
     administer_quiz(quiz_questions, chapter_number, soup)
 
 
