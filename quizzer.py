@@ -23,6 +23,13 @@ NOTE_URLS = [
     'https://cs.ccsu.edu/~stan/classes/CS410/Notes16/10-SystemDependability.html',
     'https://cs.ccsu.edu/~stan/classes/CS410/Notes16/11-ReliabilityEngineering.html',
     'https://cs.ccsu.edu/~stan/classes/CS410/Notes16/12-SafetyEngineering.html',
+    'https://cs.ccsu.edu/~stan/classes/CS410/Notes16/13-SecurityEngineering.html',
+    'https://cs.ccsu.edu/~stan/classes/CS410/Notes16/14-ResilienceEngineering.html',
+    'https://cs.ccsu.edu/~stan/classes/CS530/Notes18/15-SoftwareReuse.html',
+    'https://cs.ccsu.edu/~stan/classes/CS530/Notes18/16-CBSE.html',
+    'https://cs.ccsu.edu/~stan/classes/CS530/Notes18/17-DistributedSE.html',
+    'https://cs.ccsu.edu/~stan/classes/CS530/Notes18/18-ServiceOrientedSE.html',
+    'https://cs.ccsu.edu/~stan/classes/CS530/Notes18/19-SystemsEngineering.html',
 ]
 CHOICE_LABELS = string.ascii_lowercase  # 'abcdefghijklmnopqrstuvwxyz'
 
@@ -54,36 +61,6 @@ def strip_choice_custom(choice):
             break
     choice = re.sub(r'\(.*?\)', '', choice)  # Remove anything inside parentheses
     return choice.strip()
-
-
-def extract_ul_questions(chunk, next_chunk):
-    ul_questions = []
-    ul_element = chunk.find_next('ul')
-    
-    if not ul_element or (next_chunk and next_chunk.find_previous('ul') == ul_element):
-        return []
-
-    # Extract the header from the preceding <p> element
-    header = ul_element.find_previous('p').text.strip()
-    
-    for li in ul_element.find_all("li"):
-        b_element = li.find("b")
-        if b_element:
-            surrounding_text = li.text.strip()
-            answer = b_element.text.strip()
-            question = surrounding_text.replace(answer, "___")
-            
-            # Combine the header with the question
-            combined_question = f"{header} {question}"
-            
-            ul_questions.append({
-                "type": "fill",
-                "question": combined_question,
-                "answer": answer
-            })
-
-    return ul_questions
-
 
 def extract_fill_questions(chunk, next_chunk):
     fill_questions = []
@@ -118,46 +95,88 @@ def extract_fill_questions(chunk, next_chunk):
     
     return fill_questions
 
+def extract_mcq_questions(chunk, next_chunk):
+    questions = []
+    dl_elements = chunk.find_next('dl')
+    if dl_elements:
+        for dd in dl_elements.find_all("dd"):
+            choices = [strip_choice_custom(dt.text.strip()) for dt in dl_elements.find_all("dt")]
+            question = dd.text.strip()
+            correct_answer = strip_choice_custom(dd.find_previous_sibling("dt").text.strip())
+
+            if len(choices) > 4:
+                correct_choice_index = choices.index(correct_answer)
+                del choices[correct_choice_index]
+                random_choices = random.sample(choices, 3)
+                random_choices.append(correct_answer)
+                choices = random_choices
+
+            random.shuffle(choices)
+
+            questions.append({
+                "type": "mcq",
+                "question": question,
+                "choices": choices,
+                "correct_answer": correct_answer
+            })
+    return questions
+
+def extract_ul_questions(chunk, next_chunk):
+    questions = []
+    ul_elements = chunk.find_next('ul')
+    if ul_elements:
+        for li in ul_elements.find_all("li"):
+            bold_term = li.select_one("b")
+            if bold_term:
+                surrounding_text = li.text.strip()
+                answer = bold_term.text.strip()
+                question = surrounding_text.replace(answer, "_____")
+                questions.append({
+                    "type": "fill",
+                    "question": question,
+                    "answer": answer
+                })
+    return questions
+
+def extract_table_questions(chunk, next_chunk):
+    questions = []
+    table_elements = chunk.find_next('table')
+    if table_elements:
+        rows = table_elements.select("tr")
+        title = rows[0].text.strip()
+        for row in rows[1:]:
+            cols = row.select("td")
+            if len(cols) < 3:  # Ensure there are at least three columns
+                continue
+            question = title + ": " + cols[1].text.strip()
+            correct_answer = cols[2].text.strip()
+            incorrect_answers = [col.text.strip() for col in cols if col != cols[2]][:2]
+            choices = [correct_answer] + incorrect_answers
+            random.shuffle(choices)
+            questions.append({
+                "type": "mcq",
+                "question": question,
+                "choices": choices,
+                "correct_answer": correct_answer
+            })
+    return questions
+
 
 def extract_quiz_questions(soup):
     underheads = soup.select(".Underhead")
     quiz_questions = []
+    added_questions = set()  # Set to keep track of added questions
 
     for idx, chunk in enumerate(underheads):
         next_chunk = underheads[idx + 1] if idx + 1 < len(underheads) else None
-        # next_underhead = chunk.find_next(class_='Underhead')
-        dl_elements = chunk.find_next('dl')
-
-        # if next_underhead and (not dl_elements or next_underhead.find_previous('dl') != dl_elements):
-        #     dl_elements = None
-
-        if dl_elements:
-            for dd in dl_elements.find_all("dd"):
-                choices = [strip_choice_custom(dt.text.strip()) for dt in dl_elements.find_all("dt")]
-                question = dd.text.strip()
-                correct_answer = strip_choice_custom(dd.find_previous_sibling("dt").text.strip())
-
-                if len(choices) > 4:
-                    correct_choice_index = choices.index(correct_answer)
-                    del choices[correct_choice_index]
-                    random_choices = random.sample(choices, 3)
-                    random_choices.append(correct_answer)
-                    choices = random_choices
-
-                random.shuffle(choices)
-
-                quiz_questions.append({
-                    "type": "mcq",
-                    "question": question,
-                    "choices": choices,
-                    "correct_answer": correct_answer
-                })
-        else: 
-            # TODO: Fix bullet point questions
-            # ul_questions = extract_ul_questions(chunk, next_chunk)
-            # quiz_questions.extend(ul_questions)
-            fill_questions = extract_fill_questions(chunk, next_chunk)
-            quiz_questions.extend(fill_questions)
+        
+        # Call appropriate extract function and add questions if they haven't been added before
+        for func in [extract_mcq_questions, extract_fill_questions, extract_ul_questions, extract_table_questions]:
+            for question in func(chunk, next_chunk):
+                q_text = question["question"]
+                if q_text not in added_questions:
+                    added_questions.add(q_text)
+                    quiz_questions.append(question)
 
     return quiz_questions
 
@@ -202,6 +221,9 @@ def administer_quiz(quiz_questions, chapter_number, soup):
     print(f"# of questions: {len(quiz_questions)}")
     print(f"Study here: {url}")
     print()
+    if not quiz_questions:
+        print("No questions found for this chapter :(")
+        return
 
     user_answers = []
     score = 0
@@ -234,7 +256,7 @@ def main():
     html_content = fetch_html_content(NOTE_URLS[chapter_number - 1])
     soup = BeautifulSoup(html_content, 'html.parser')
     quiz_questions = extract_quiz_questions(soup)
-    # random.shuffle(quiz_questions)
+    random.shuffle(quiz_questions)
     administer_quiz(quiz_questions, chapter_number, soup)
 
 
