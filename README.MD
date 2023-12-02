@@ -59,3 +59,8 @@ Open for any suggestions
 - [17 Distributed SE](https://cs.ccsu.edu/~stan/classes/CS530/Notes18/17-DistributedSE.html)
 - [18 Service Oriented SE](https://cs.ccsu.edu/~stan/classes/CS530/Notes18/18-ServiceOrientedSE.html)
 - [19 Systems Engineering](https://cs.ccsu.edu/~stan/classes/CS530/Notes18/19-SystemsEngineering.html)
+- [20 Systems of Systems](https://cs.ccsu.edu/~stan/classes/CS530/Notes18/20-SystemsOfSystems.html)
+- [21 Real-time SE](https://cs.ccsu.edu/~stan/classes/CS530/Notes18/21-RealTimeSE.html)
+- [22 Project Management](https://cs.ccsu.edu/~stan/classes/CS530/Notes18/22-ProjectManagement.html)
+- [23 Project Planning](https://cs.ccsu.edu/~stan/classes/CS530/Notes18/23-ProjectPlanning.html)
+- [24 Quality Management](https://cs.ccsu.edu/~stan/classes/CS530/Notes18/24-QualityManagement.html)

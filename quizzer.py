@@ -30,6 +30,11 @@ NOTE_URLS = [
     'https://cs.ccsu.edu/~stan/classes/CS530/Notes18/17-DistributedSE.html',
     'https://cs.ccsu.edu/~stan/classes/CS530/Notes18/18-ServiceOrientedSE.html',
     'https://cs.ccsu.edu/~stan/classes/CS530/Notes18/19-SystemsEngineering.html',
+    'https://cs.ccsu.edu/~stan/classes/CS530/Notes18/20-SystemsOfSystems.html',
+    'https://cs.ccsu.edu/~stan/classes/CS530/Notes18/21-RealTimeSE.html',
+    'https://cs.ccsu.edu/~stan/classes/CS530/Notes18/22-ProjectManagement.html',
+    'https://cs.ccsu.edu/~stan/classes/CS530/Notes18/23-ProjectPlanning.html',
+    'https://cs.ccsu.edu/~stan/classes/CS530/Notes18/24-QualityManagement.html'
 ]
 CHOICE_LABELS = string.ascii_lowercase  # 'abcdefghijklmnopqrstuvwxyz'
 
